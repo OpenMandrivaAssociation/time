@@ -1,7 +1,7 @@
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
 Version:	1.7
-Release:	%mkrel 32
+Release:	%mkrel 33
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
@@ -47,7 +47,7 @@ automake-1.4 -a
 %build
 
 %configure2_5x
-make LDFLAGS=-s
+make CFLAGS="%{optflags}" LDFLAGS="%{ldflags}"
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
