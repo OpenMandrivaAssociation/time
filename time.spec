@@ -1,7 +1,7 @@
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
 Version:	1.7
-Release:	%mkrel 33
+Release:	%mkrel 34
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
