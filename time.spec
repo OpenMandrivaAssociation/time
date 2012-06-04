@@ -1,7 +1,7 @@
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
 Version:	1.7
-Release:	%mkrel 37
+Release:	38
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
@@ -11,10 +11,9 @@ Patch1:		time-1.7-ressource.patch
 Patch2:		time-1.7-quiet.1.patch
 Patch3:		time-1.7-fixinfo.patch
 Patch4:		time-1.7-build.patch
-BuildRequires:	texinfo autoconf2.5 automake1.4
-Requires(pre):	info-install
-Requires(preun): info-install
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+BuildRequires:	texinfo
+BuildRequires:	autoconf2.5
+BuildRequires:	automake1.4
 
 %description
 The GNU time utility runs another program, collects information about
@@ -28,7 +27,6 @@ categories of time, memory, I/O, and IPC calls.
 
 The GNU version can format the output in arbitrary ways by using a 
 printf-style format string to include various resource measurements.
-
 
 %prep
 %setup -q
@@ -45,28 +43,15 @@ automake-1.4 -a
 #authoheader
 
 %build
-
 %configure2_5x
 make CFLAGS="%{optflags}" LDFLAGS="%{ldflags}"
 
 %install
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-
-%makeinstall
-
-%clean
-[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-
-%post
-%_install_info %name.info
-
-%preun
-%_remove_install_info %name.info
+rm -rf %{buildroot}
+%makeinstall_std
 
 %files
-%defattr(644,root,root,755)
 %doc NEWS README
-%attr(755,root,root) %{_bindir}/%{name}
+%{_bindir}/%{name}
 %{_infodir}/%{name}.info*
-
 
