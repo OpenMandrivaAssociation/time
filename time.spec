@@ -11,9 +11,8 @@ Patch1:		time-1.7-ressource.patch
 Patch2:		time-1.7-quiet.1.patch
 Patch3:		time-1.7-fixinfo.patch
 Patch4:		time-1.7-build.patch
+Patch5:		time-1.7-configure.patch
 BuildRequires:	texinfo
-BuildRequires:	autoconf2.5
-BuildRequires:	automake1.4
 
 %description
 The GNU time utility runs another program, collects information about
@@ -36,12 +35,9 @@ printf-style format string to include various resource measurements.
 %patch2 -p0
 %patch3 -p1
 %patch4 -p0
+%patch5 -p1
 
-export FORCE_AUTOCONF_2_5=1
-aclocal-1.4
-autoconf
-automake-1.4 -a
-#authoheader
+autoreconf -fiv
 
 %build
 
