@@ -61,7 +61,7 @@ diff -Naur time-1.7/time.c time-1.7.tpg/time.c
  	      if (r > 0)
  		fprintf (fp, "%lu%%", (v * 100 / r));
 +             else if (ru > 0)
-+               fprintf (fp, "%lu%%", (vu * 100 / ru))
++               fprintf (fp, "%lu%%", (vu * 100 / ru));
  	      else
  		fprintf (fp, "?%%");
  	      break;
