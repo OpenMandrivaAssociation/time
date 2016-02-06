@@ -11,11 +11,10 @@ to raise chance to get non-zero values.
  time.c   |   15 +++++++++++++++
  2 files changed, 17 insertions(+), 0 deletions(-)
 
-diff --git a/resuse.h b/resuse.h
-index 992143f..7a3ee66 100644
---- a/resuse.h
-+++ b/resuse.h
-@@ -33,9 +33,11 @@ struct timeval
+diff -Naur time-1.7/resuse.h time-1.7.tpg/resuse.h
+--- time-1.7/resuse.h	2016-02-06 12:51:23.000000000 +0000
++++ time-1.7.tpg/resuse.h	2016-02-06 12:54:48.694781831 +0000
+@@ -33,9 +33,11 @@
  #if HAVE_SYS_RUSAGE_H
  /* This rusage structure measures nanoseconds instead of microseconds.  */
  # define TV_MSEC tv_nsec / 1000000
@@ -24,23 +23,22 @@ index 992143f..7a3ee66 100644
  #else
  # define TV_MSEC tv_usec / 1000
 +# define TV_USEC tv_usec
- # if HAVE_WAIT3
+ # if HAVE_SYS_RESOURCE_H
  #  include <sys/resource.h>
- # else
-diff --git a/time.c b/time.c
-index 43aec0b..96cfdde 100644
---- a/time.c
-+++ b/time.c
-@@ -326,6 +326,8 @@ summarize (fp, fmt, command, resp)
+ # endif
+diff -Naur time-1.7/time.c time-1.7.tpg/time.c
+--- time-1.7/time.c	2016-02-06 12:51:23.000000000 +0000
++++ time-1.7.tpg/time.c	2016-02-06 12:56:20.822247795 +0000
+@@ -331,6 +331,8 @@
  {
    unsigned long r;		/* Elapsed real milliseconds.  */
    unsigned long v;		/* Elapsed virtual (CPU) milliseconds.  */
-+  unsigned long ru;		/* Elapsed real microseconds.  */
-+  unsigned long vu;		/* Elapsed virtual (CPU) microseconds.  */
++  unsigned long ru;            /* Elapsed real microseconds.  */
++  unsigned long vu;            /* Elapsed virtual (CPU) microseconds.  *
  
-   if (verbose)
-   {
-@@ -350,6 +352,17 @@ summarize (fp, fmt, command, resp)
+   if (WIFSTOPPED (resp->waitstatus))
+     fprintf (fp, "Command stopped by signal %d\n",
+@@ -353,6 +355,17 @@
    v = resp->ru.ru_utime.tv_sec * 1000 + resp->ru.ru_utime.TV_MSEC +
      resp->ru.ru_stime.tv_sec * 1000 + resp->ru.ru_stime.TV_MSEC;
  
@@ -58,15 +56,15 @@ index 43aec0b..96cfdde 100644
    while (*fmt)
      {
        switch (*fmt)
-@@ -408,6 +421,8 @@ summarize (fp, fmt, command, resp)
+@@ -411,6 +424,8 @@
  	      /* % cpu is (total cpu time)/(elapsed time).  */
  	      if (r > 0)
  		fprintf (fp, "%lu%%", (v * 100 / r));
-+	      else if (ru > 0)
-+		fprintf (fp, "%lu%%", (vu * 100 / ru));
++             else if (ru > 0)
++               fprintf (fp, "%lu%%", (vu * 100 / ru))
  	      else
  		fprintf (fp, "?%%");
  	      break;
--- 
-1.7.4.4
 
+--
+1.7.4.4
