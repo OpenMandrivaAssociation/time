@@ -1,11 +1,11 @@
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
-Version:	1.7
-Release:	50
+Version:	1.8
+Release:	1
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
-Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.bz2
+Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.gz
 Patch0:		time-1.7.info.patch
 Patch1:		time-1.7-ressource.patch
 Patch2:		time-1.7-quiet.1.patch
