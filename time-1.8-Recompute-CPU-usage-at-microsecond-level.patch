@@ -1,0 +1,75 @@
+From 5891844448acf635b95c6299c18391d4d68f0355 Mon Sep 17 00:00:00 2001
+From: "H.J. Lu" <hongjiu.lu@intel.com>
+Date: Wed, 8 Nov 2017 16:50:21 +0100
+Subject: [PATCH] Recompute CPU usage at microsecond level
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If job finishes quickly, miliseconds arithmetic rounds to zero. If
+that happens, recalculate CPU usage ratio with microsecond accuracy
+to raise chance to get non-zero values.
+
+Petr Pisar: Ported to 1.8.
+
+Signed-off-by: Petr Písař <ppisar@redhat.com>
+---
+ src/resuse.h |  1 +
+ src/time.c   | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/src/resuse.h b/src/resuse.h
+index a5edfaa..b21e2ad 100644
+--- a/src/resuse.h
++++ b/src/resuse.h
+@@ -23,6 +23,7 @@
+ 
+ /* Convert rusage's microseconds to miliseconds */
+ #define TV_MSEC tv_usec / 1000
++#define TV_USEC tv_usec
+ 
+ 
+ 
+diff --git a/src/time.c b/src/time.c
+index 9047374..9a3b042 100644
+--- a/src/time.c
++++ b/src/time.c
+@@ -429,6 +429,8 @@ summarize (fp, fmt, command, resp)
+ {
+   unsigned long r;		/* Elapsed real milliseconds.  */
+   unsigned long v;		/* Elapsed virtual (CPU) milliseconds.  */
++  unsigned long ru;		/* Elapsed real microseconds.  */
++  unsigned long vu;		/* Elapsed virtual (CPU) microseconds.  */
+ 
+   if (!quiet && output_format != posix_format)
+     {
+@@ -453,6 +455,17 @@ summarize (fp, fmt, command, resp)
+   v = resp->ru.ru_utime.tv_sec * 1000 + resp->ru.ru_utime.TV_MSEC +
+     resp->ru.ru_stime.tv_sec * 1000 + resp->ru.ru_stime.TV_MSEC;
+ 
++  if (r == 0 && v == 0)
++    {
++      ru = resp->elapsed.tv_usec;
++      vu = resp->ru.ru_utime.TV_USEC + resp->ru.ru_stime.TV_USEC;
++    }
++  else
++    {
++      ru = 0;
++      vu = 0;
++    }
++
+   while (*fmt)
+     {
+       switch (*fmt)
+@@ -510,6 +523,8 @@ summarize (fp, fmt, command, resp)
+ 	      /* % cpu is (total cpu time)/(elapsed time).  */
+ 	      if (r > 0)
+ 		fprintf (fp, "%lu%%", (v * 100 / r));
++	      else if (ru > 0)
++		fprintf (fp, "%lu%%", (vu * 100 / ru));
+ 	      else
+ 		fprintf (fp, "?%%");
+ 	      break;
+-- 
+2.13.6
+

@@ -1,0 +1,171 @@
+From c5e97663cc9976e11ffa8491a6fdcb31702856ee Mon Sep 17 00:00:00 2001
+From: Assaf Gordon <assafgordon@gmail.com>
+Date: Wed, 8 Nov 2017 14:29:00 -0700
+Subject: [PATCH] time: remove "Command exited with non-zero status" in POSIX
+ (-p) mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Suggested by Petr Pisar in
+https://lists.gnu.org/archive/html/bug-time/2017-11/msg00001.html .
+
+* src/time.c (summarize): Don't print the message in posix mode.
+* tests/time-posix-quiet.sh: Test the output with -p and -q.
+* Makefile.am (TESTS): Add new test.
+* NEWS: Mention change.
+
+Signed-off-by: Petr Písař <ppisar@redhat.com>
+---
+ Makefile.am               |  3 +-
+ NEWS                      | 10 ++++++
+ src/time.c                |  2 +-
+ tests/time-posix-quiet.sh | 91 +++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 104 insertions(+), 2 deletions(-)
+ create mode 100755 tests/time-posix-quiet.sh
+
+diff --git a/Makefile.am b/Makefile.am
+index 30868db..861c3ae 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -75,7 +75,8 @@ tests_time_aux_CFLAGS =
+ 
+ TESTS = tests/help-version.sh \
+ 	tests/time-max-rss.sh \
+-	tests/time-exit-codes.sh
++	tests/time-exit-codes.sh \
++	tests/time-posix-quiet.sh
+ 
+ TEST_EXTENSIONS = .sh
+ 
+diff --git a/NEWS b/NEWS
+index 06a75bc..d05206f 100644
+--- a/NEWS
++++ b/NEWS
+@@ -1,3 +1,13 @@
++* Noteworthy changes in release ?.? (?-?-?) []
++
++** Changes in behaviour
++
++  "time -p" no longers adds the "Command exited with non-zero status" message.
++  This is a backward-incompatible change for better POSIX compliance.
++  Many downstream distributions previously patched 'time' to behave this way
++  (Debian added '-q', Fedora patched '-p').
++
++
+ * Noteworthy changes in release 1.8 (2017-11-07) [stable]
+ 
+ ** Licensing
+diff --git a/src/time.c b/src/time.c
+index a6d99fb..6fa6c87 100644
+--- a/src/time.c
++++ b/src/time.c
+@@ -429,7 +429,7 @@ summarize (fp, fmt, command, resp)
+   unsigned long r;		/* Elapsed real milliseconds.  */
+   unsigned long v;		/* Elapsed virtual (CPU) milliseconds.  */
+ 
+-  if (!quiet)
++  if (!quiet && output_format != posix_format)
+     {
+       if (WIFSTOPPED (resp->waitstatus))
+         fprintf (fp, "Command stopped by signal %d\n",
+diff --git a/tests/time-posix-quiet.sh b/tests/time-posix-quiet.sh
+new file mode 100755
+index 0000000..1e6f653
+--- /dev/null
++++ b/tests/time-posix-quiet.sh
+@@ -0,0 +1,91 @@
++#!/bin/sh
++
++# Test output quietness with -q and -p
++
++# Copyright (C) 2017 Assaf Gordon <assafgordon@gmail.com>
++#
++# This file is part of GNU Time.
++#
++# GNU Time is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# GNU Time is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with GNU time.  If not, see <http://www.gnu.org/licenses/>.
++
++# Written by Assaf Gordon
++. "${test_dir=.}/init.sh"
++
++which false > /dev/null || skip_ "'false' program required for this test"
++which sed > /dev/null || skip_ "'sed' program required for this test"
++
++fail=
++
++
++##
++## Default output
++##
++## Has extra "command exited with non-zero status" message
++
++cat<<EOF > exp-default || framework_failure_ "failed to write exp-default"
++Command exited with non-zero status
++user system :elapsed ?%CPU (avgtext+avgdata maxresident)k
++inputs+outputs (major+minor)pagefaults swaps
++EOF
++
++returns_ 1 env time -o out-def1 false || fail=1
++
++# Remove the actual values (they'll differ every run)
++sed -e 's/[0-9.]*//g' -e 's/ *$//' out-def1 > out-default \
++    || framework_failure_ "sed failed on out-def1"
++
++compare_ out-default exp-default || fail=1
++
++
++
++
++##
++## -q output
++##
++## originally from Debian, "-q" supresses the "command exited..." message
++
++cat<<EOF > exp-q  || framework_failure_ "failed to write exp-q"
++user system :elapsed ?%CPU (avgtext+avgdata maxresident)k
++inputs+outputs (major+minor)pagefaults swaps
++EOF
++
++returns_ 1 env time -q -o out-q1 false || fail=1
++
++# Remove the actual values (they'll differ every run)
++sed -e 's/[0-9.]*//g' -e 's/ *$//' out-q1 > out-q \
++    || framework_failure_ "sed failed on out-q"
++
++compare_ out-q exp-q || fail=1
++
++
++##
++## -p (POSIX) output
++##
++## versions 1.8 and older add "Command exited with non-zero status" message.
++cat<<EOF > exp-posix || framework_failure_ "failed to write exp-posix"
++real
++user
++sys
++EOF
++
++returns_ 1 env time -p -o out-posix1 false || fail=1
++
++# Remove the actual values (they'll differ every run)
++sed -e 's/[0-9.]*//g' -e 's/ *$//' out-posix1 > out-posix \
++    || framework_failure_ "sed failed on out-posix1"
++
++compare_ out-posix exp-posix || fail=1
++
++
++exit $fail
+-- 
+2.13.6
+

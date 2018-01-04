@@ -1,0 +1,56 @@
+From 5d15357e0858bd4dcf2788420ea544459d9e9b24 Mon Sep 17 00:00:00 2001
+From: Assaf Gordon <assafgordon@gmail.com>
+Date: Wed, 8 Nov 2017 14:49:51 -0700
+Subject: [PATCH] time: use noreturn to pacify gcc-7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Reported by Jim Meyering in
+https://lists.gnu.org/archive/html/bug-time/2017-11/msg00000.html .
+
+gcc-7 with --enable-gcc-warnings would warn about:
+
+  src/time.c: In function 'getargs':
+  src/time.c:664:4: warning: this statement may fall through
+  [-Wimplicit-fallthrough=]
+      usage (EXIT_SUCCESS);
+      ^~~~~~~~~~~~~~~~~~~~
+  src/time.c:665:2: note: here
+    case 'o':
+    ^~~~
+
+This is a false-positive as usage() calls exit(3) and never returns
+(but gcc seems unable to deduce that).
+
+Use noreturn to suppress the warning.
+
+* bootstrap.conf: Add gnulib's stdnoreturn module.
+* src/time.c (usage): Mark as 'noreturn'.
+
+Petr Písař: Ported to 1.8.
+
+diff --git a/src/time.c b/src/time.c
+index 6fa6c87..9047374 100644
+--- a/src/time.c
++++ b/src/time.c
+@@ -33,6 +33,7 @@
+ #include <errno.h>
+ #include <stdlib.h>
+ #include <stdbool.h>
++#include <stdnoreturn.h>
+ #include <string.h>
+ #include <limits.h>
+ #include <unistd.h>
+@@ -214,7 +215,7 @@ static struct option longopts[] =
+ # define PROGRAM_NAME "time"
+ 
+ 
+-static void
++noreturn static void
+ usage (int status)
+ {
+   if (status != EXIT_SUCCESS)
+-- 
+2.13.6
+

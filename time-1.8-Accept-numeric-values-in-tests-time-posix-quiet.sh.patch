@@ -1,0 +1,78 @@
+From 84648ef7951047728909a89333a85a0b27f22019 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Petr=20P=C3=ADsa=C5=99?= <ppisar@redhat.com>
+Date: Thu, 9 Nov 2017 12:18:34 +0100
+Subject: [PATCH] Accept numeric values in tests/time-posix-quiet.sh
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+tests/time-posix-quiet.sh failed randomly:
+
+> --- out-q 2017-11-09 11:50:52.652813081 +0100
+> +++ exp-q 2017-11-09 11:50:52.646813087 +0100
+> @@ -1,2 +1,2 @@
+> -user system :elapsed %CPU (avgtext+avgdata maxresident)k
+> +user system :elapsed ?%CPU (avgtext+avgdata maxresident)k
+>  inputs+outputs (major+minor)pagefaults swaps
+> FAIL tests/time-posix-quiet.sh (exit status: 1)
+
+because the CPU usage was sometimes "0%CPU or "100%CPU" instead of expcted
+"?%CPU".
+
+This patch corrects the test.
+
+Signed-off-by: Petr Písař <ppisar@redhat.com>
+---
+ tests/time-posix-quiet.sh | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tests/time-posix-quiet.sh b/tests/time-posix-quiet.sh
+index 1e6f653..2a61d08 100755
+--- a/tests/time-posix-quiet.sh
++++ b/tests/time-posix-quiet.sh
+@@ -35,14 +35,14 @@ fail=
+ 
+ cat<<EOF > exp-default || framework_failure_ "failed to write exp-default"
+ Command exited with non-zero status
+-user system :elapsed ?%CPU (avgtext+avgdata maxresident)k
++user system :elapsed %CPU (avgtext+avgdata maxresident)k
+ inputs+outputs (major+minor)pagefaults swaps
+ EOF
+ 
+ returns_ 1 env time -o out-def1 false || fail=1
+ 
+ # Remove the actual values (they'll differ every run)
+-sed -e 's/[0-9.]*//g' -e 's/ *$//' out-def1 > out-default \
++sed -e 's/[0-9.?]*//g' -e 's/ *$//' out-def1 > out-default \
+     || framework_failure_ "sed failed on out-def1"
+ 
+ compare_ out-default exp-default || fail=1
+@@ -56,14 +56,14 @@ compare_ out-default exp-default || fail=1
+ ## originally from Debian, "-q" supresses the "command exited..." message
+ 
+ cat<<EOF > exp-q  || framework_failure_ "failed to write exp-q"
+-user system :elapsed ?%CPU (avgtext+avgdata maxresident)k
++user system :elapsed %CPU (avgtext+avgdata maxresident)k
+ inputs+outputs (major+minor)pagefaults swaps
+ EOF
+ 
+ returns_ 1 env time -q -o out-q1 false || fail=1
+ 
+ # Remove the actual values (they'll differ every run)
+-sed -e 's/[0-9.]*//g' -e 's/ *$//' out-q1 > out-q \
++sed -e 's/[0-9.?]*//g' -e 's/ *$//' out-q1 > out-q \
+     || framework_failure_ "sed failed on out-q"
+ 
+ compare_ out-q exp-q || fail=1
+@@ -82,7 +82,7 @@ EOF
+ returns_ 1 env time -p -o out-posix1 false || fail=1
+ 
+ # Remove the actual values (they'll differ every run)
+-sed -e 's/[0-9.]*//g' -e 's/ *$//' out-posix1 > out-posix \
++sed -e 's/[0-9.?]*//g' -e 's/ *$//' out-posix1 > out-posix \
+     || framework_failure_ "sed failed on out-posix1"
+ 
+ compare_ out-posix exp-posix || fail=1
+-- 
+2.13.6
+

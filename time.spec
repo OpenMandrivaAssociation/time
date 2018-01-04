@@ -6,14 +6,19 @@ License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
 Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.gz
-Patch0:		time-1.7.info.patch
-Patch1:		time-1.7-ressource.patch
-Patch2:		time-1.7-quiet.1.patch
-Patch3:		time-1.7-fixinfo.patch
-Patch4:		time-1.7-build.patch
-Patch5:		time-1.7-configure.patch
-Patch6:		time-1.7-ru_maxrss-is-in-kilobytes-on-Linux.patch
-Patch7:		time-1.7-Recompute-CPU-usage-at-microsecond-level.patch
+# Do not print command failure in POSIX mode, in upstream after 1.8
+# <https://lists.gnu.org/archive/html/bug-time/2017-11/msg00001.html>
+Patch0:		time-1.8-time-remove-Command-exited-with-non-zero-status-in-P.patch
+# Silent compiler warnings, in upstream after 1.8
+Patch1:		time-1.8-time-use-noreturn-to-pacify-gcc-7.patch
+# Correct test added in
+# time-remove-Command-exited-with-non-zero-status-in-P.patch
+Patch2:		time-1.8-Accept-numeric-values-in-tests-time-posix-quiet.sh.patch
+# Bug #527276
+Patch3:		time-1.8-Recompute-CPU-usage-at-microsecond-level.patch
+# Fix measuring time when a clock experiences a jump, bug #1004416,
+# <http://lists.gnu.org/archive/html/bug-gnu-utils/2013-09/msg00003.html>
+Patch4:		time-1.8-Prefer-clock_gettime-CLOCK_MONOTONIC.patch
 BuildRequires:	texinfo
 
 %description
@@ -33,13 +38,11 @@ printf-style format string to include various resource measurements.
 %prep
 %setup -q
 %patch0 -p1
+chmod +x tests/time-posix-quiet.sh
 %patch1 -p1
-%patch2 -p0
+%patch2 -p1
 %patch3 -p1
-%patch4 -p0
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
+%patch4 -p1
 
 autoreconf -fiv
 
