@@ -48,7 +48,7 @@ autoreconf -fiv
 
 %build
 %configure
-%make CFLAGS="%{optflags}" LDFLAGS="%{ldflags}"
+%make
 
 %install
 %makeinstall
