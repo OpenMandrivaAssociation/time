@@ -1,24 +1,14 @@
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
-Version:	1.8
+Version:	1.9
 Release:	1
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
 Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.gz
-# Do not print command failure in POSIX mode, in upstream after 1.8
-# <https://lists.gnu.org/archive/html/bug-time/2017-11/msg00001.html>
-Patch0:		time-1.8-time-remove-Command-exited-with-non-zero-status-in-P.patch
-# Silent compiler warnings, in upstream after 1.8
-Patch1:		time-1.8-time-use-noreturn-to-pacify-gcc-7.patch
-# Correct test added in
-# time-remove-Command-exited-with-non-zero-status-in-P.patch
-Patch2:		time-1.8-Accept-numeric-values-in-tests-time-posix-quiet.sh.patch
-# Bug #527276
-Patch3:		time-1.8-Recompute-CPU-usage-at-microsecond-level.patch
 # Fix measuring time when a clock experiences a jump, bug #1004416,
 # <http://lists.gnu.org/archive/html/bug-gnu-utils/2013-09/msg00003.html>
-Patch4:		time-1.8-Prefer-clock_gettime-CLOCK_MONOTONIC.patch
+Patch0:		time-1.8-Prefer-clock_gettime-CLOCK_MONOTONIC.patch
 BuildRequires:	texinfo
 
 %description
@@ -37,21 +27,16 @@ printf-style format string to include various resource measurements.
 
 %prep
 %setup -q
-%patch0 -p1
-chmod +x tests/time-posix-quiet.sh
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%autopatch -p1
 
 autoreconf -fiv
 
 %build
 %configure
-%make
+%make_build
 
 %install
-%makeinstall
+%make_install
 
 %files
 %doc NEWS README
