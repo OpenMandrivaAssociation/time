@@ -1,7 +1,7 @@
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
 Version:	1.9
-Release:	3
+Release:	4
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
@@ -26,9 +26,7 @@ printf-style format string to include various resource measurements.
 
 
 %prep
-%setup -q
-%autopatch -p1
-
+%autosetup -p1
 autoreconf -fiv
 
 %build
