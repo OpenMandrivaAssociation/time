@@ -1,0 +1,21 @@
+diff -up time-1.9/src/resuse.c.omv~ time-1.9/src/resuse.c
+--- time-1.9/src/resuse.c.omv~	2023-09-14 00:07:34.876189005 +0100
++++ time-1.9/src/resuse.c	2023-09-14 00:08:15.916356782 +0100
+@@ -25,6 +25,7 @@
+ #include <sys/time.h>
+ #include <sys/wait.h>
+ #include <sys/resource.h>
++#include <string.h>
+ 
+ #if HAVE_WAIT3
+ # if HAVE_CLOCK_GETTIME
+@@ -54,8 +55,7 @@
+ /* Prepare to measure a child process.  */
+ 
+ void
+-resuse_start (resp)
+-     RESUSE *resp;
++resuse_start (RESUSE *resp)
+ {
+ #if HAVE_WAIT3
+ #if HAVE_CLOCK_GETTIME
