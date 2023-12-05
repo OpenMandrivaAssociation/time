@@ -1,7 +1,9 @@
+%global optflags %{optflags} -Oz
+
 Summary:	A GNU utility for monitoring a program's use of system resources
 Name:		time
 Version:	1.9
-Release:	6
+Release:	7
 License:	GPL
 Group:		Monitoring
 URL:		http://www.gnu.org/directory/GNU/time.html
@@ -10,6 +12,7 @@ Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.gz
 # <http://lists.gnu.org/archive/html/bug-gnu-utils/2013-09/msg00003.html>
 Patch0:		time-1.8-Prefer-clock_gettime-CLOCK_MONOTONIC.patch
 Patch1:		time-1.9-clang-16.patch
+Patch2:		time-1.9-Close-outfp-before-exec.patch
 BuildRequires:	texinfo
 
 %description
@@ -40,4 +43,4 @@ autoreconf -fiv
 %files
 %doc NEWS README
 %{_bindir}/%{name}
-%{_infodir}/%{name}.info*
+%doc %{_infodir}/%{name}.info*
