@@ -6,7 +6,7 @@ Version:	1.9
 Release:	7
 License:	GPL
 Group:		Monitoring
-URL:		http://www.gnu.org/directory/GNU/time.html
+URL:		https://www.gnu.org/directory/GNU/time.html
 Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.gz
 # Fix measuring time when a clock experiences a jump, bug #1004416,
 # <http://lists.gnu.org/archive/html/bug-gnu-utils/2013-09/msg00003.html>
