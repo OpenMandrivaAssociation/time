@@ -13,6 +13,11 @@ Source0:	http://ftp.gnu.org/pub/gnu/time/%{name}-%{version}.tar.gz
 Patch0:		time-1.8-Prefer-clock_gettime-CLOCK_MONOTONIC.patch
 Patch1:		time-1.9-clang-16.patch
 Patch2:		time-1.9-Close-outfp-before-exec.patch
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	texinfo
 
 %description
